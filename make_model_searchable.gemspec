@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
 
   spec.summary       = %q{Adds simple search functionality to your models.}
   spec.description   = %q{Moduler solution to add search functionality for selected fields.}
-  spec.homepage      = "https://parthtalks.weebly.com"
+  spec.homepage      = "https://github.com/8parth/make_model_searchable"
   spec.license       = "MIT"
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
