@@ -1,4 +1,5 @@
-# MakeModelSearchable
+# MakeModelSearchable 
+[![Code Triagers Badge](https://www.codetriage.com/8parth/make_model_searchable/badges/users.svg)](https://www.codetriage.com/8parth/make_model_searchable)
 
 Moduler solution to add search functionality for selected fields.
 
