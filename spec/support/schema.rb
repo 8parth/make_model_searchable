@@ -8,7 +8,7 @@ ActiveRecord::Schema.define do
     t.datetime "updated_at", null: false
   end
 
-	create_table :persons, :force => true do |t|
+	create_table :people, :force => true do |t|
     t.string :first_name
     t.string :last_name
     t.datetime "created_at", null: false
