@@ -1,3 +1,3 @@
 class User < ActiveRecord::Base
-	# searchable_attributes :first_name
+	searchable_attributes :first_name
 end

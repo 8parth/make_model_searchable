@@ -1,0 +1,14 @@
+john:
+  id: 1
+  first_name: "John"
+  last_name: "Doe"
+
+harry:
+  id: 2
+  first_name: "Harry"
+  last_name: "Potter"
+
+hermoine:
+  id: 3
+  first_name: "Hermoine"
+  last_name: "Grenger"  

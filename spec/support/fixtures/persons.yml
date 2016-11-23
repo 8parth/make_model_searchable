@@ -1,0 +1,9 @@
+ron:
+  id: 1
+  first_name: "Ron"
+  last_name: "Weasly"
+
+drako:
+  id: 2
+  first_name: "Drako"
+  last_name: "Malfoy"
