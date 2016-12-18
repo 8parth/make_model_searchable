@@ -56,7 +56,16 @@ describe MakeModelSearchable do
       end
     end
   end
-  # it 'does something useful' do
-  #   expect(false).to eq(true)
-  # end
+  
+  describe "searchable_attributes" do 
+    context "accepts joins columns" do 
+      before do
+        5.times do |t|
+          @post = FactoryGirl.create(:post)
+        end
+
+        it { binding.pry }
+      end
+    end
+  end
 end

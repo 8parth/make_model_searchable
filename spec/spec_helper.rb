@@ -5,6 +5,7 @@ require 'bundler/setup'
 require 'make_model_searchable'
 ActiveRecord::Base.establish_connection(:adapter => "sqlite3", :database => ":memory:")
 require 'support/schema'
+require 'models/post'
 require 'models/user'
 require 'models/person'
 

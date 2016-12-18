@@ -4,10 +4,30 @@ require 'active_record'
 module MakeModelSearchable
 
 	def searchable_attributes(*options)
-    options = options.collect{ |option| option.to_s }
+    joined_options = options.select{ |option| option.is_a? (Hash) }
+    options = options.select{ |option| !option.is_a?(Hash) }
     self.connection
     setup_fields(options)
+    if joined_options.present?
+      setup_joined_fields(joined_options)
+    end
     self.extend(ClassMethods)
+  end
+
+  def setup_joined_fields(options_array)
+    joined_fields = []
+    association_names = self.reflect_on_all_associations.map(&:name)
+    valid_opts = options_array.first.select {|k,v| association_names.include?(k)}
+    if valid_opts
+      valid_opts.each do |key, val|
+        joined_fields = get_valid_joined_fields(key, val)
+        if joined_fields.present?
+          self.instance_variable_set(:@joined_fields, joined_fields)
+        end
+      end
+    else
+      raise Exception.new,  "Please pass valid attributes for class: #{self.name}"
+    end
   end
 
   def setup_fields(options)
@@ -35,22 +55,46 @@ module MakeModelSearchable
     options
   end
 
+  def get_valid_joined_fields(key, columns_array)
+    associated_model = self.reflect_on_association(key).klass
+    associated_model.connection
+    if columns_array.empty?
+      options = associated_model.columns.select{ |col| col.type == :string or col.type == :text }
+    else
+      options = associated_model.columns.select{ |col| (col.type == :string or col.type == :text) and columns_array.include?(col.name.to_sym) }
+    end
+    options
+  end
+
   module ClassMethods 
     def search(search_term)
       valid_fields = self.instance_variable_get(:@selected_fields)
+      joined_fields = self.instance_variable_get(:@joined_fields)
       if valid_fields.present?
         if search_term
           search_term = "%#{search_term.downcase}%"
-          users = self.arel_table
+          own_table = self.arel_table
           arel_node = Arel::Nodes::Node.new
           valid_fields.each_with_index do |val, index|
             if index == 0
-              arel_node = users[val].lower.matches(search_term)
+              arel_node = own_table[val].lower.matches(search_term)
             else
-              arel_node = arel_node.or(users[val].lower.matches(search_term))
+              arel_node = arel_node.or(own_table[val].lower.matches(search_term))
             end
           end
-          where(arel_node)
+          join_table_names = []
+          if joined_fields.present?
+            joined_fields.each do |field|
+              join_table_names << field.table_name.to_sym
+              associated_relation = self.reflect_on_association(field.table_name).klass.arel_table
+              if arel_node.present?
+                arel_node = arel_node.or(associated_relation[field.name].lower.matches(search_term))
+              else
+                arel_node = associated_relation[field.name].lower.matches(search_term)
+              end
+            end
+          end
+          joins(join_table_names).where(arel_node)
         else
           all
         end
@@ -58,31 +102,6 @@ module MakeModelSearchable
         raise Exception,  "Please pass valid attributes for class: #{self.name}"
       end
     end
-
-    # def get_valid_fields(fields)
-    #   column_names = self.columns.map(&:name)
-    #   column_types = self.columns.map(&:type)
-    #   fields.reject { |element| !column_names.include?(element) or column_types[element].type != :string }
-    # end
-
-    # def get_join_fields(fields, associations)
-    #   # self.reflect_on_association(:emails).class_name.constantize.column_names
-    #   column_names = []
-    #   associations.each do |association_name|
-    #     # association_name
-    #     column_names << self.reflect_on_association(association_name).class_name.constantize.column_names
-    #   end
-    #   column_names.flatten!
-    #   column_names.uniq!
-
-    #   fields.reject { |element| !column_names.include?(element) }
-    # end
-
-    # def get_valid_associations(associations)
-    #   associations.collect! { |assoc| assoc.to_sym }
-    #   association_names = self.reflect_on_all_associations.collect{|assoc| assoc.name  }
-    #   associations.reject { |element| !association_names.include?(element) }
-    # end
   end
   ActiveRecord::Base.extend MakeModelSearchable
 end
