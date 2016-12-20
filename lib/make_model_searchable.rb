@@ -20,10 +20,10 @@ module MakeModelSearchable
     valid_opts = options_array.first.select {|k,v| association_names.include?(k)}
     if valid_opts
       valid_opts.each do |key, val|
-        joined_fields = get_valid_joined_fields(key, val)
-        if joined_fields.present?
-          self.instance_variable_set(:@joined_fields, joined_fields)
-        end
+        joined_fields << get_valid_joined_fields(key, val)
+      end
+      if joined_fields.present?
+        self.instance_variable_set(:@joined_fields, joined_fields.flatten)
       end
     else
       raise Exception.new,  "Please pass valid attributes for class: #{self.name}"
@@ -48,7 +48,7 @@ module MakeModelSearchable
       end
     end
     if searchable_columns.present?
-      options.select{ |option| searchable_columns.include?(option) }
+      options.select!{ |option| searchable_columns.include?(option.to_s) }
     else
       options = []
     end
@@ -70,6 +70,7 @@ module MakeModelSearchable
     def search(search_term)
       valid_fields = self.instance_variable_get(:@selected_fields)
       joined_fields = self.instance_variable_get(:@joined_fields)
+      
       if valid_fields.present?
         if search_term
           search_term = "%#{search_term.downcase}%"
@@ -85,12 +86,14 @@ module MakeModelSearchable
           join_table_names = []
           if joined_fields.present?
             joined_fields.each do |field|
-              join_table_names << field.table_name.to_sym
-              associated_relation = self.reflect_on_association(field.table_name).klass.arel_table
-              if arel_node.present?
-                arel_node = arel_node.or(associated_relation[field.name].lower.matches(search_term))
-              else
-                arel_node = associated_relation[field.name].lower.matches(search_term)
+              if field.respond_to? "table_name"
+                join_table_names << field.table_name.to_sym
+                associated_relation = self.reflect_on_association(field.table_name).klass.arel_table
+                if arel_node.present?
+                  arel_node = arel_node.or(associated_relation[field.name].lower.matches(search_term))
+                else
+                  arel_node = associated_relation[field.name].lower.matches(search_term)
+                end
               end
             end
           end

@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'pry'
 
 describe MakeModelSearchable do
   it 'has a version number' do
@@ -7,7 +8,7 @@ describe MakeModelSearchable do
 
   describe "Model which specifies attributes to be searched from" do
     context "records with search term present for specified field" do
-    	before do
+    	before(:all) do
         @search_term = "hn"
     		FactoryGirl.create(:user)
         @users = User.search(@search_term)
@@ -17,7 +18,7 @@ describe MakeModelSearchable do
       end 
     end
     context "records with search term not present for specified field" do
-      before do
+      before(:all) do
         @search_term = "doe"
         FactoryGirl.create(:user)
         @users = User.search(@search_term)
