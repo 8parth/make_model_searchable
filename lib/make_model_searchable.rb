@@ -1,5 +1,6 @@
 require "make_model_searchable/version"
 require 'active_record'
+require 'models/searchable_field'
 
 module MakeModelSearchable
 
@@ -17,17 +18,17 @@ module MakeModelSearchable
   def setup_joined_fields(options_array)
     joined_fields = []
     association_names = self.reflect_on_all_associations.map(&:name)
-    valid_opts = options_array.first.select {|k,v| association_names.include?(k)}
-    if valid_opts
-      valid_opts.each do |key, val|
-        joined_fields << get_valid_joined_fields(key, val)
+    valid_opts = options_array.first.select {|k,v| association_names.include?(k)  }
+    searchable_fields = []
+
+    valid_opts.each do |key, val|
+      assoc =  self.reflect_on_association(key)
+      joined_fields << get_valid_joined_fields(key, val)
+      joined_fields.flatten.each do |f|
+        searchable_fields << SearchableField.new(f.name, f.type, assoc.name,  assoc.klass)
       end
-      if joined_fields.present?
-        self.instance_variable_set(:@joined_fields, joined_fields.flatten)
-      end
-    else
-      raise Exception.new,  "Please pass valid attributes for class: #{self.name}"
     end
+    self.instance_variable_set(:@joined_fields, searchable_fields.flatten) if searchable_fields.present?
   end
 
   def setup_fields(options)
@@ -84,19 +85,19 @@ module MakeModelSearchable
             end
           end
           join_table_names = []
+          
           if joined_fields.present?
             joined_fields.each do |field|
-              if field.respond_to? "table_name"
-                join_table_names << field.table_name.to_sym
-                associated_relation = self.reflect_on_association(field.table_name).klass.arel_table
-                if arel_node.present?
-                  arel_node = arel_node.or(associated_relation[field.name].lower.matches(search_term))
-                else
-                  arel_node = associated_relation[field.name].lower.matches(search_term)
-                end
+              associated_relation = field.associated_klass.arel_table
+              join_table_names << field.association_name
+              if arel_node.present?
+                arel_node = arel_node.or(associated_relation[field.name].lower.matches(search_term))
+              else
+                arel_node = associated_relation[field.name].lower.matches(search_term)
               end
             end
           end
+
           joins(join_table_names).where(arel_node)
         else
           all
