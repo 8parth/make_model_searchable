@@ -25,19 +25,47 @@ To add search functionality to a model, for example User add following line to y
 
 ```ruby
 class User < ActiveRecord::Base
-	searchable_attributes :attribute1, :attribute2
+	searchable_attributes :first_name, :last_name
 end
 ```
 Then use 
 ```ruby
 def index
- User.search("something")
+	User.search("something")
 end
 ```
 
 searchable_attributes line makes model searchable by adding search method to User model. 
-Specifying attributes by :attribute1, :attribute2 enables searching in specied fields. It is optional to specify attributes, if no attributes are specified then all attributes are searched.
+Specifying attributes by :first_name, :last_name enables searching in specied fields. It is optional to specify attributes, if no attributes are specified then all attributes are searched.
 
+
+To enable searching from associations, you can mention asssociation name with attributes to be searched from that association as below: 
+
+Suppose our user has many posts, then in our model
+
+```ruby
+class User < ActiveRecord::Base
+	has_many :posts
+	searchable_attributes :name, posts: [:title]
+end
+```
+
+or if you want to search from all text or string fields,
+
+```ruby
+class User < ActiveRecord::Base
+	has_many :posts
+	searchable_attributes :name, posts: []
+end
+```
+
+
+Then use,
+```ruby
+def index
+ 	User.search("something")
+end
+```
 
 ## Development
 
@@ -47,7 +75,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/make_model_searchable. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
+Bug reports and pull requests are welcome on GitHub at https://github.com/8parth/make_model_searchable. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
 
 
 ## License
