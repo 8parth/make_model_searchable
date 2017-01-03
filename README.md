@@ -21,7 +21,7 @@ Or install it yourself as:
 
 ## Usage
 
-To add search functionality to a model, for example User add following line to your model.
+###### To add search functionality to a model, for example User add following line to your model.
 
 ```ruby
 class User < ActiveRecord::Base
@@ -39,7 +39,7 @@ searchable_attributes line makes model searchable by adding search method to Use
 Specifying attributes by :first_name, :last_name enables searching in specied fields. It is optional to specify attributes, if no attributes are specified then all attributes are searched.
 
 
-To enable searching from associations, you can mention asssociation name with attributes to be searched from that association as below: 
+###### To enable searching from associations, you can mention asssociation name with attributes to be searched from that association as below: 
 
 Suppose our user has many posts, then in our model
 
