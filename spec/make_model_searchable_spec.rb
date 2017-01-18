@@ -56,5 +56,11 @@ describe MakeModelSearchable do
         expect(@persons.pluck(:last_name).include?(FactoryGirl.attributes_for(:person)[:last_name])).to eq(true)
       end
     end
+
+    context "when new record is created" do
+      it{
+        expect(Organization.new(name: "TEST")).to be_valid
+      } 
+    end
   end
 end

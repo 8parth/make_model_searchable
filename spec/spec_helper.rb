@@ -8,6 +8,7 @@ require 'support/schema'
 require 'models/post'
 require 'models/user'
 require 'models/person'
+require 'models/organization'
 
 require 'rspec'
 require 'factory_girl'

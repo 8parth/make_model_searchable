@@ -5,9 +5,9 @@ require 'models/searchable_field'
 module MakeModelSearchable
 
 	def searchable_attributes(*options)
+    # self.connection
     joined_options = options.select{ |option| option.is_a? (Hash) }
     options = options.select{ |option| !option.is_a?(Hash) }
-    self.connection
     setup_fields(options)
     if joined_options.present?
       setup_joined_fields(joined_options)
@@ -49,22 +49,22 @@ module MakeModelSearchable
       end
     end
     if searchable_columns.present?
-      options.select!{ |option| searchable_columns.include?(option.to_s) }
+      valid_fields = options.select{ |option| searchable_columns.include?(option.to_s) }
     else
-      options = []
+      valid_fields = []
     end
-    options
+    valid_fields
   end
 
   def get_valid_joined_fields(key, columns_array)
     associated_model = self.reflect_on_association(key).klass
     associated_model.connection
     if columns_array.empty?
-      options = associated_model.columns.select{ |col| col.type == :string or col.type == :text }
+      valid_joied_fields = associated_model.columns.select{ |col| col.type == :string or col.type == :text }
     else
-      options = associated_model.columns.select{ |col| (col.type == :string or col.type == :text) and columns_array.include?(col.name.to_sym) }
+      valid_joied_fields = associated_model.columns.select{ |col| (col.type == :string or col.type == :text) and columns_array.include?(col.name.to_sym) }
     end
-    options
+    valid_joied_fields
   end
 
   module ClassMethods 
