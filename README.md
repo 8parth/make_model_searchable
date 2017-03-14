@@ -25,13 +25,13 @@ Or install it yourself as:
 
 ```ruby
 class User < ActiveRecord::Base
-	searchable_attributes :first_name, :last_name
+  searchable_attributes :first_name, :last_name
 end
 ```
 Then use 
 ```ruby
 def index
-	User.search("something")
+  User.search("something")
 end
 ```
 
@@ -45,8 +45,8 @@ Suppose our user has many posts, then in our model
 
 ```ruby
 class User < ActiveRecord::Base
-	has_many :posts
-	searchable_attributes :name, posts: [:title]
+  has_many :posts
+  searchable_attributes :name, posts: [:title]
 end
 ```
 
@@ -54,8 +54,8 @@ or if you want to search from all text or string fields,
 
 ```ruby
 class User < ActiveRecord::Base
-	has_many :posts
-	searchable_attributes :name, posts: []
+  has_many :posts
+  searchable_attributes :name, posts: []
 end
 ```
 
@@ -63,7 +63,7 @@ end
 Then use,
 ```ruby
 def index
- 	User.search("something")
+  User.search("something")
 end
 ```
 
