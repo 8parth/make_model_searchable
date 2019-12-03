@@ -4,7 +4,7 @@ require 'models/searchable_field'
 
 module MakeModelSearchable
 
-	def searchable_attributes(*options)
+  def searchable_attributes(*options)
     # self.connection
     joined_options = options.select{ |option| option.is_a? (Hash) }
     options = options.select{ |option| !option.is_a?(Hash) }
